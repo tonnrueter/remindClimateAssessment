@@ -196,11 +196,12 @@ for parset in allparsets:
 # %%
 runresults = openscm_runner.run(
     climate_models_cfgs={"MAGICC7": allparsets},
-    output_variables=(
-        "Surface Air Temperature Change",
-        "Effective Radiative Forcing|Anthropogenic",
-        "Net Atmosphere to Land Flux|CO2",
-    ),
+    # output_variables=(
+    #     "Surface Air Temperature Change",
+    #     "Effective Radiative Forcing|Anthropogenic",
+    #     "Net Atmosphere to Land Flux|CO2",
+    #     "",
+    # ),
     scenarios=scmdata.ScmRun(basescen),
 )
 
