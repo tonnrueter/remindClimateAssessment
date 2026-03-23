@@ -192,7 +192,6 @@ allparsets = [i["nml_allcfgs"] for i in allparsets["configurations"]]
 for parset in allparsets:
     parset["endyear"] = int(endyear)
 
-
 # %%
 runresults = openscm_runner.run(
     climate_models_cfgs={"MAGICC7": allparsets},
@@ -200,6 +199,14 @@ runresults = openscm_runner.run(
         "Surface Air Temperature Change",
         "Effective Radiative Forcing|Anthropogenic",
         "Net Atmosphere to Land Flux|CO2",
+        "Sea Level Rise",
+        # Additional variables available
+        # "SLR_LANDWATER",
+        # "SLR_GL",
+        # "SLR_GIS_SMB",
+        # "SLR_GIS_SID",
+        # "SLR_AIS_SID",
+        # "SLR_AIS_SMB"
     ),
     scenarios=scmdata.ScmRun(basescen),
 )
