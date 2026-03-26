@@ -6,3 +6,6 @@
 - magicc7Variable: Effective Radiative Forcing|Anthropogenic
   gamsVariable: p15_forc_magicc
   fileName: p15_forc_magicc
+- magicc7Variable: Sea Level Rise
+  gamsVariable: pm_globalMeanSLR
+  fileName: p15_globalMeanSLR
