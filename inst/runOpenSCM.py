@@ -200,6 +200,7 @@ runresults = openscm_runner.run(
         "Surface Air Temperature Change",
         "Effective Radiative Forcing|Anthropogenic",
         "Net Atmosphere to Land Flux|CO2",
+        "Atmospheric Concentrations|CO2",
     ),
     scenarios=scmdata.ScmRun(basescen),
 )
