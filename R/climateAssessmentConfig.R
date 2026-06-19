@@ -13,7 +13,7 @@
 #' list(
 #'   outputDir  = "/p/tmp/tonnru/remind/output/h_cpol_KLW_d50_2025-02-06_18.10.48",
 #'   scenario   = "h_cpol_KLW_d50",
-#'   condaEnv   = "/p/projects/rd3mod/python/environments/scm_magicc7_hpc",
+#'   pythonEnv  = "/p/projects/rd3mod/python/environments/ca-base",
 #'   isArchived = FALSE,
 #'   logFile    = "<outputDir>/log_climate.txt",
 #'   workersDir = "<outputDir>/climate-assessment-data/workers",
@@ -39,7 +39,7 @@ climateAssessmentConfig <- function(outputDir, mode) {
     mode       = mode,
     outputDir  = normalizePath(outputDir, mustWork = TRUE),
     scenario   = lucode2::getScenNames(outputDir),
-    condaEnv   = normalizePath(runConfig$pythonPath, mustWork = TRUE),
+    pythonEnv  = normalizePath(runConfig$pythonPath, mustWork = TRUE),
     isArchived = isTRUE(runConfig$climate_assessment_archive),
     logFile    = normalizePath(file.path(outputDir, "log_climate.txt"), mustWork = FALSE),
     reportsDir = normalizePath(file.path(outputDir, "reporting"), mustWork = FALSE),
