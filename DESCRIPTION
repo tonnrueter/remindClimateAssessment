@@ -10,11 +10,9 @@ License: LGPL-3
 URL: https://github.com/pik-piam/remindClimateAssessment
 Imports:
     dplyr,
-    gdxrrw,
     lucode2,
     magrittr,
     piamInterfaces,
-    purrr,
     quitte (>= 0.3144.0),
     readr,
     rlang,
