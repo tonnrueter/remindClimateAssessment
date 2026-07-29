@@ -15,6 +15,7 @@
 #' @return `quitte` data frame containing all data for the emission impulse scenarios
 #' @importFrom quitte interpolate_missing_periods pivot_periods_wider
 #' @importFrom dplyr arrange bind_rows case_when mutate
+#' @importFrom rlang .data
 #' @examples
 #' \dontrun{
 #' impulses <- read.quitte(cfg$harmInfEmissionsFile) %>%

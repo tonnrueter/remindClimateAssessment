@@ -20,6 +20,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom stringr str_to_title
 #' @importFrom piamInterfaces generateIIASASubmission
+#' @importFrom rlang .data
 #' @examples
 #' \dontrun{
 #' # Generates REMIND emission report, extracts relevant variables and reshapes. Note: This funtion
