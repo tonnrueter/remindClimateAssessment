@@ -65,6 +65,9 @@ climateAssessmentConfig <- function(outputDir, mode) {
       normalizePath(mode, mustWork = TRUE)
     }
   )
+  # Query the MAGICC binary for its version. `getMagiccVersion`` stops hard if it cannot establish a proper
+  # version string, thereby failing the config build and everything downstream
+  cfg$magiccVersion <- getMagiccVersion(cfg$magiccBin)
   # Some more file needed to run climate assessment
   cfg$parameterSets <- read_yaml(cfg$probabilisticFile)
   cfg$nSets         <- length(cfg$parameterSets$configurations)
