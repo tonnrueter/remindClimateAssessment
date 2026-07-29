@@ -9,6 +9,7 @@
 #' @importFrom quitte as.quitte write.mif
 #' @importFrom dplyr filter
 #' @importFrom readr write_lines
+#' @importFrom rlang .data
 #' @export
 appendClimateAssessmentToMif <- function(qf, mif) {
   as.quitte(mif) %>%

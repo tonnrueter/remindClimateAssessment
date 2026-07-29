@@ -8,6 +8,7 @@
 #' @return A cleaned `quitte` object with filtered periods, interpolated missing periods, and renamed variables
 #' @importFrom dplyr filter mutate
 #' @importFrom quitte interpolate_missing_periods
+#' @importFrom rlang .data
 #' @export
 cleanUpClimateAssessment <- function(qf, periods) {
   return(
