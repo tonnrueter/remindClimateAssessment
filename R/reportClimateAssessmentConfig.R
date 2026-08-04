@@ -27,6 +27,7 @@ reportClimateAssessmentConfig <- function(cfg) {
       "  archiveDir = ", cfg$archiveDir, "\n",
       "  scriptsDir = ", cfg$scriptsDir, "\n",
       "  magiccBin  = ", cfg$magiccBin, "\n",
+      "  magiccVersion = ", cfg$magiccVersion, "\n",
       "  variablesFile = ", cfg$variablesFile, "\n",
       "  infillingDatabase = ", cfg$infillingDatabase, "\n",
       "  probabilisticFile = ", cfg$probabilisticFile, "\n",
