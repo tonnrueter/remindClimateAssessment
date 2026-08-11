@@ -2,7 +2,7 @@ Type: Package
 Package: remindClimateAssessment
 Title: REMIND integration of IIASA's `climate-assessment` package
 Version: 0.1.2
-Date: 2026-07-28
+Date: 2026-08-11
 Authors@R:
     person("Tonn", "Rüter", , "tonn.rueter@pik-potsdam.de", role = c("aut", "cre"))
 Description: The REMIND integration of IIASA's `climate-assessment` provides a standardized interface to simple climate models such as MAGICC7.
@@ -13,6 +13,7 @@ Imports:
     lucode2,
     magrittr,
     piamInterfaces,
+    piamenv,
     quitte (>= 0.3144.0),
     readr,
     rlang,

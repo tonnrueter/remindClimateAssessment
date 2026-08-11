@@ -19,7 +19,6 @@
 #'   workersDir = "<outputDir>/climate-assessment-data/workers",
 #'   climateDir = "<outputDir>/climate-assessment-data",
 #'   archiveDir = "",
-#'   scriptsDir = "<Depending on your installation>",
 #'   magiccBin  = "<Depending on your installation>",
 #'   variablesFile = "<Depending on piamInterfaces>",
 #'   infillingDatabase = "<Depending on your REMIND default.cfg>",
@@ -30,6 +29,7 @@
 #' }
 # nolint end
 #' @importFrom yaml read_yaml
+#' @importFrom piamenv condaPackageVersion
 #' @export
 climateAssessmentConfig <- function(outputDir, mode) {
   if (!(mode %in% c("report", "iteration", "impulse")) || file.exists(mode))
@@ -50,7 +50,6 @@ climateAssessmentConfig <- function(outputDir, mode) {
     } else {
       normalizePath(file.path(runConfig$archiveClimateAssessmentData, mustWork = FALSE))
     },
-    scriptsDir = normalizePath(file.path(runConfig$climate_assessment_root, "scripts"), mustWork = TRUE),
     magiccBin  = normalizePath(file.path(runConfig$climate_assessment_magicc_bin), mustWork = TRUE),
     variablesFile = normalizePath(
       file.path(system.file(package = "piamInterfaces"), "iiasaTemplates", "climate_assessment_variables.yaml"),
@@ -68,6 +67,8 @@ climateAssessmentConfig <- function(outputDir, mode) {
   # Query the MAGICC binary for its version. `getMagiccVersion`` stops hard if it cannot establish a proper
   # version string, thereby failing the config build and everything downstream
   cfg$magiccVersion <- getMagiccVersion(cfg$magiccBin)
+  # Query the deployed climate-assessment package for its version
+  cfg$climateAssessmentVersion <- condaPackageVersion("climate_assessment", cfg$condaEnv)
   # Some more file needed to run climate assessment
   cfg$parameterSets <- read_yaml(cfg$probabilisticFile)
   cfg$nSets         <- length(cfg$parameterSets$configurations)
