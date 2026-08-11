@@ -71,6 +71,29 @@ climateAssessmentConfig <- function(outputDir, mode) {
   # Some more file needed to run climate assessment
   cfg$parameterSets <- read_yaml(cfg$probabilisticFile)
   cfg$nSets         <- length(cfg$parameterSets$configurations)
+  # Optional overrides that broaden the set of reported climate variables. Each defaults to NULL, in which case
+  # matching climate-assessment CLI flag is omitted and the built-in default is used.
+  # To report sea-level-rise variables produced by an SLR-capable MAGICC:
+  #   climate_assessment_magicc_extra_config       -> MAGICC out_dynamic_vars (JSON, --magicc-extra-config)
+  #   climate_assessment_output_variables_file     -> requested emulator variables (JSON, --output-variables-file)
+  #   climate_assessment_variable_definitions_file -> post-processing name/unit table (CSV, --variable-definitions-file)
+  # Treat both an absent key (NULL) and an empty string as "not set" -> use built-in default
+  isSet <- function(x) !is.null(x) && length(x) == 1 && nzchar(x)
+  cfg$magiccExtraConfig <- if (isSet(runConfig$climate_assessment_magicc_extra_config)) {
+    normalizePath(runConfig$climate_assessment_magicc_extra_config, mustWork = TRUE)
+  } else {
+    NULL
+  }
+  cfg$outputVariablesFile <- if (isSet(runConfig$climate_assessment_output_variables_file)) {
+    normalizePath(runConfig$climate_assessment_output_variables_file, mustWork = TRUE)
+  } else {
+    NULL
+  }
+  cfg$variableDefinitionsFile <- if (isSet(runConfig$climate_assessment_variable_definitions_file)) {
+    normalizePath(runConfig$climate_assessment_variable_definitions_file, mustWork = TRUE)
+  } else {
+    NULL
+  }
   # Climate assessment files have a different prefix when depending on mode (i.e. run type)
   assessmentFilesPrefix <- if (mode == "report") {
     "ar6_climate_assessment_"
