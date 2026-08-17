@@ -6,7 +6,7 @@ import os
 
 import scmdata
 
-# import pymagicc
+import pymagicc
 import openscm_runner
 import scmdata
 
@@ -14,7 +14,6 @@ import scmdata
 # from climate_assessment.climate.wg3 import clean_wg3_scenarios
 import pyam
 import pandas as pd
-import xarray as xr
 
 # import copy
 import json
@@ -27,13 +26,6 @@ class EnvironmentError(Exception):
 
 for env_var in ["MAGICC_EXECUTABLE_7", "MAGICC_WORKER_ROOT_DIR"]:
     if os.environ.get(env_var, "") == "":
-        # If clause covers both cases in which the env var is not set at all
-        # as well as the case in which it is set to an empty string
-        # If these are already set, it shouldn't override it. We actually may not want to have a default but just throw an error if not set
-        os.environ["MAGICC_EXECUTABLE_7"] = (
-            "/p/projects/rd3mod/climate-assessment-files/magicc-v7.5.3/bin/magicc"
-        )
-        os.environ["MAGICC_WORKER_ROOT_DIR"] = os.environ["PTMP"] + "/"
         raise EnvironmentError(f"{env_var} does not exist")
 
     # Optional debug prints
@@ -88,7 +80,7 @@ basescenfname = args.scens_file
 climate_assessment_magicc_prob_file_iteration = args.probabilistic_file
 
 # Final year for MAGICC run
-endyear = args.endyear
+endyear = int(args.endyear)
 
 # Output file name, assumed to be inside climatetempdir
 # TODO: We don't really use climatetempdir here,
@@ -149,16 +141,12 @@ def clean_wg3_scenarios(inp):
 
     # # avoid MAGICC's weird end year effects by ensuring scenarios go just beyond
     # # the years we're interested in
-    # scens_scmrun = scmdata.ScmRun(df_clean)
-    # output_times = [
-    #     dt.datetime(y, 1, 1) for y in scens_scmrun["year"].tolist() + [3000]
-    # ]
-    # scens_scmrun = scens_scmrun.interpolate(
-    #     output_times,
-    #     extrapolation_type="constant",
-    # )
-    # clean_scenarios = scens_scmrun.timeseries().reset_index()
-    clean_scenarios = df_clean
+    scenarios = scmdata.ScmRun(df_clean)
+    scenarios = scenarios.interpolate(
+        [dt.datetime(y, 1, 1) for y in range(scenarios["year"].min(), endyear + 1)],
+        extrapolation_type="constant",
+    )
+    clean_scenarios = scenarios.timeseries().reset_index()
 
     def fix_hfc_unit(variable):
         if "HFC" not in variable:
@@ -189,19 +177,57 @@ with open(climate_assessment_magicc_prob_file_iteration) as f:
 allparsets = [i["nml_allcfgs"] for i in allparsets["configurations"]]
 
 # Set endyear in all parsets
-for parset in allparsets:
-    parset["endyear"] = int(endyear)
+# for parset in allparsets:
+#     parset["endyear"] = int(endyear)
 
-
-# %%
-runresults = openscm_runner.run(
-    climate_models_cfgs={"MAGICC7": allparsets},
-    output_variables=(
+common_cfg = {
+    # startyear defaults to 1995, Tessa uses
+    # "startyear": 1750,
+    "endyear": endyear,
+    # use MAGICC names here, they are translated
+    # to more readable names below
+    "out_dynamic_vars": [
         "Surface Air Temperature Change",
+        "Sea Level Rise",
+        "SLR_EXPANSION",
+        "SLR_LANDWATER",
+        "SLR_GL",
+        "SLR_GIS_SMB",
+        "SLR_GIS_SID",
+        "SLR_AIS_SID",
+        "SLR_AIS_SMB",
+        "Heat Content|Ocean",
+        # REMIND specific
         "Effective Radiative Forcing|Anthropogenic",
         "Net Atmosphere to Land Flux|CO2",
         "Atmospheric Concentrations|CO2",
-    ),
+    ],
+    "out_ascii_binary": "BINARY",
+    "out_binary_format": 2,
+    # Switch from conc to emissions driven in 2015
+    "co2_switchfromconc2emis_year": 2015,
+    "ch4_switchfromconc2emis_year": 2015,
+    "n2o_switchfromconc2emis_year": 2015,
+    "fgas_switchfromconc2emis_year": 2015,
+    "mhalo_switchfromconc2emis_year": 2015,
+}
+common_cfg
+
+# Merge iteration parset with common cfg. Note: we use a single config
+run_cfgs = [{**common_cfg, **parset} for parset in allparsets]
+
+output_variables = [
+    pymagicc.definitions.convert_magicc7_to_openscm_variables(magiccvarname).replace(
+        "DAT_", ""
+    )
+    for magiccvarname in common_cfg["out_dynamic_vars"]
+]
+
+# %%
+runresults = openscm_runner.run(
+    # climate_models_cfgs={"MAGICC7": allparsets},
+    climate_models_cfgs={"MAGICC7": run_cfgs},
+    output_variables=output_variables,
     scenarios=scmdata.ScmRun(basescen),
 )
 
