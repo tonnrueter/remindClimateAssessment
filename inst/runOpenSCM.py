@@ -141,12 +141,12 @@ def clean_wg3_scenarios(inp):
 
     # # avoid MAGICC's weird end year effects by ensuring scenarios go just beyond
     # # the years we're interested in
-    scenarios = scmdata.ScmRun(df_clean)
-    scenarios = scenarios.interpolate(
-        [dt.datetime(y, 1, 1) for y in range(scenarios["year"].min(), endyear + 1)],
-        extrapolation_type="constant",
-    )
-    clean_scenarios = scenarios.timeseries().reset_index()
+    # scenarios = scmdata.ScmRun(df_clean)
+    # scenarios = scenarios.interpolate(
+    #     [dt.datetime(y, 1, 1) for y in range(scenarios["year"].min(), endyear + 1)],
+    #     extrapolation_type="constant",
+    # )
+    # clean_scenarios = scenarios.timeseries().reset_index()
 
     def fix_hfc_unit(variable):
         if "HFC" not in variable:
@@ -154,22 +154,36 @@ def clean_wg3_scenarios(inp):
 
         return "kt {}/yr".format(variable.split("|")[-1])
 
-    hfc_rows = clean_scenarios["variable"].str.contains("HFC")
-    clean_scenarios.loc[hfc_rows, "unit"] = clean_scenarios.loc[
-        hfc_rows, "variable"
-    ].apply(fix_hfc_unit)
+    hfc_rows = df_clean["variable"].str.contains("HFC")
+    df_clean.loc[hfc_rows, "unit"] = df_clean.loc[hfc_rows, "variable"].apply(fix_hfc_unit)
 
     try:
         # if extra col is floating around, remove it
-        clean_scenarios = clean_scenarios.drop("unnamed: 0", axis="columns")
+        df_clean = df_clean.drop("unnamed: 0", axis="columns")
     except KeyError:
         pass
 
-    return clean_scenarios
+    return df_clean
 
 
 # %%
 basescen = clean_wg3_scenarios(inbasescen)
+
+# Extrapolate emissions data to endyear
+scenarios = scmdata.ScmRun(basescen)
+scenarios = scenarios.interpolate(
+    [dt.datetime(y, 1, 1) for y in range(scenarios["year"].min(), endyear + 1)],
+    extrapolation_type="constant",
+)
+
+outfilename = os.path.splitext(basescenfname)[0] + "_extrapolated.csv"
+(
+    scenarios
+    .to_iamdataframe()
+    .swap_time_for_year()
+    .to_csv(outfilename)
+)
+
 # %%
 # Read parameter sets, can also be multiple
 with open(climate_assessment_magicc_prob_file_iteration) as f:
@@ -228,7 +242,8 @@ runresults = openscm_runner.run(
     # climate_models_cfgs={"MAGICC7": allparsets},
     climate_models_cfgs={"MAGICC7": run_cfgs},
     output_variables=output_variables,
-    scenarios=scmdata.ScmRun(basescen),
+    # scenarios=scmdata.ScmRun(basescen),
+    scenarios=scenarios,
 )
 
 # %%
